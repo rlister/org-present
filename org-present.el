@@ -74,8 +74,7 @@
   (unless (org-at-heading-p) (outline-previous-heading))
   (let ((level (org-current-level)))
     (when (and level (> level 1))
-      (outline-up-heading (- level 1))
-      (message (number-to-string level)))))
+      (outline-up-heading (- level 1)))))
 
 (defun org-present-next ()
   "Jump to next top-level heading."
@@ -153,7 +152,6 @@
 (defun org-present ()
   "init."
   (interactive)
-  (message "running org-present")
   (setq org-present-mode t)
   (org-present-add-overlays)
   (run-hooks 'org-present-mode-hook))
