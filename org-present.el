@@ -60,9 +60,9 @@
 
 (define-minor-mode org-present-mode
   "Minimalist presentation minor mode for org-mode."
-  nil
-  " OP"
-  org-present-mode-keymap)
+  :init-value nil
+  :lighter " OP"
+  :keymap org-present-mode-keymap)
 
 (make-variable-buffer-local 'org-present-mode)
 
@@ -116,12 +116,34 @@
   (interactive)
   (text-scale-increase 0))
 
+(defun org-present-add-overlays ()
+  "Add overlays for this mode."
+  (interactive)
+  (add-to-invisibility-spec 'org-present)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "^\\(*+\\)" nil t) ;make stars in headers invisible
+      (overlay-put (make-overlay (match-beginning 1) (match-end 1)) 'invisible 'org-present))))
+
+(defun org-present-rm-overlays ()
+  "Remove overlays for this mode."
+  (interactive)
+  (remove-from-invisibility-spec 'org-present))
+
+;;;###autoload
+(defun org-present ()
+  "init."
+  (interactive)
+  (message "running org-present")
+  (setq org-present-mode t)
+  (org-present-add-overlays)
+  (run-hooks 'org-present-mode-hook))
+
 (defun org-present-quit ()
   "Quit the minor-mode."
   (interactive)
   (org-present-small)
+  (org-present-rm-overlays)
   (widen)
   (run-hooks 'org-present-mode-quit-hook)
   (setq org-present-mode nil))
-
-(run-hooks 'org-present-mode-hook)
