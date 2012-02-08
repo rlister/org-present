@@ -122,8 +122,12 @@
   (add-to-invisibility-spec 'org-present)
   (save-excursion
     (goto-char (point-min))
+    (while (re-search-forward "^\\(#\\+\\w+:\\)" nil t) ;make org-mode pragmas invisible
+      (overlay-put (make-overlay (match-beginning 1) (match-end 1)) 'invisible 'org-present))
+    (goto-char (point-min))
     (while (re-search-forward "^\\(*+\\)" nil t) ;make stars in headers invisible
-      (overlay-put (make-overlay (match-beginning 1) (match-end 1)) 'invisible 'org-present))))
+      (overlay-put (make-overlay (match-beginning 1) (match-end 1)) 'invisible 'org-present))
+))
 
 (defun org-present-rm-overlays ()
   "Remove overlays for this mode."
