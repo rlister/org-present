@@ -54,6 +54,8 @@
 (define-key org-present-mode-keymap (kbd "C-c C-=") 'org-present-big)
 (define-key org-present-mode-keymap (kbd "C-c C--") 'org-present-small)
 (define-key org-present-mode-keymap (kbd "C-c C-q") 'org-present-quit)
+(define-key org-present-mode-keymap (kbd "C-c C-r") 'org-present-read-only)
+(define-key org-present-mode-keymap (kbd "C-c C-w") 'org-present-read-write)
 
 ;; how much to scale up font size
 (defvar org-present-text-scale 5)
@@ -126,13 +128,26 @@
       (overlay-put (make-overlay (match-beginning 1) (match-end 1)) 'invisible 'org-present))
     (goto-char (point-min))
     (while (re-search-forward "^\\(*+\\)" nil t) ;make stars in headers invisible
-      (overlay-put (make-overlay (match-beginning 1) (match-end 1)) 'invisible 'org-present))
-))
+      (overlay-put (make-overlay (match-beginning 1) (match-end 1)) 'invisible 'org-present))))
 
 (defun org-present-rm-overlays ()
   "Remove overlays for this mode."
   (interactive)
   (remove-from-invisibility-spec 'org-present))
+
+(defun org-present-read-only ()
+  "Make buffer read-only."
+  (interactive)
+  (setq buffer-read-only t)
+  (setq cursor-type nil)
+  (define-key org-present-mode-keymap (kbd "SPC") 'org-present-next))
+
+(defun org-present-read-write ()
+  "Make buffer read-only."
+  (interactive)
+  (setq buffer-read-only nil)
+  (setq cursor-type t)
+  (define-key org-present-mode-keymap (kbd "SPC") 'self-insert-command))
 
 ;;;###autoload
 (defun org-present ()
