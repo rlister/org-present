@@ -59,6 +59,7 @@
 
 ;; how much to scale up font size
 (defvar org-present-text-scale 5)
+(defvar org-present-overlays-list nil)
 
 (define-minor-mode org-present-mode
   "Minimalist presentation minor mode for org-mode."
@@ -70,7 +71,6 @@
 
 (defun org-present-top ()
   "Jump to current top-level heading, should be safe outside a heading."
-  (interactive)
   (unless (org-at-heading-p) (outline-previous-heading))
   (let ((level (org-current-level)))
     (when (and level (> level 1))
@@ -79,10 +79,10 @@
 (defun org-present-next ()
   "Jump to next top-level heading."
   (interactive)
+  (widen)
   (if (org-current-level)
       (progn
         (org-present-top)
-        (widen)
         (org-get-next-sibling))
     (outline-next-heading))
   (org-present-narrow))
@@ -98,41 +98,58 @@
   (org-present-narrow))
 
 (defun org-present-narrow ()
-  "Show just current page; in a heading we narrow, else show all headings folded (initial page)."
-  (interactive)
+  "Show just current page; in a heading we narrow, else show title page (before first heading)."
   (if (org-current-level)
       (progn
         (org-narrow-to-subtree)
         (show-all))
-    (org-cycle `(4))))
+    ;; else narrow to area before first heading
+    (outline-next-heading)
+    (narrow-to-region (point-min) (point))
+    (goto-char (point-min))))
 
 (defun org-present-big ()
   "Make font size larger."
   (interactive)
   (text-scale-increase 0)
-  (text-scale-increase org-present-text-scale))
+  (text-scale-increase org-present-text-scale)) ;MAKE THIS BUFFER-LOCAL
 
 (defun org-present-small ()
   "Change font size back to original."
   (interactive)
   (text-scale-increase 0))
 
+(defun org-present-add-overlay (beginning end)
+  "Create a single overlay over given region and remember it."
+  (let ((overlay (make-overlay beginning end)))
+    (push overlay org-present-overlays-list)
+    (overlay-put overlay 'invisible 'org-present)))
+
+(defun org-present-show-option (string)
+  "Returns non-nil if string is an org-mode exporter option whose value we want to show."
+  (save-match-data
+    (string-match
+     (regexp-opt '("title:" "author:" "date:" "email:"))
+     string)))
+
 (defun org-present-add-overlays ()
   "Add overlays for this mode."
-  (interactive)
-  (add-to-invisibility-spec 'org-present)
+  (add-to-invisibility-spec '(org-present))
   (save-excursion
+    ;; hide org-mode options starting with #+
     (goto-char (point-min))
-    (while (re-search-forward "^\\(#\\+\\w+:\\)" nil t) ;make org-mode pragmas invisible
-      (overlay-put (make-overlay (match-beginning 1) (match-end 1)) 'invisible 'org-present))
+    (while (re-search-forward "^[[:space:]]*\\(#\\+\\)\\([^[:space:]]+\\).*" nil t)
+      (let ((end (if (org-present-show-option (match-string 2)) 2 0)))
+        (org-present-add-overlay (match-beginning 1) (match-end end))))
+    ;; hide stars in headings
     (goto-char (point-min))
-    (while (re-search-forward "^\\(*+\\)" nil t) ;make stars in headers invisible
-      (overlay-put (make-overlay (match-beginning 1) (match-end 1)) 'invisible 'org-present))))
+    (while (re-search-forward "^\\(*+\\)" nil t)
+      (org-present-add-overlay (match-beginning 1) (match-end 1)))))
 
 (defun org-present-rm-overlays ()
   "Remove overlays for this mode."
-  (interactive)
-  (remove-from-invisibility-spec 'org-present))
+  (mapc 'delete-overlay org-present-overlays-list)
+  (remove-from-invisibility-spec '(org-present)))
 
 (defun org-present-read-only ()
   "Make buffer read-only."
@@ -154,6 +171,7 @@
   (interactive)
   (setq org-present-mode t)
   (org-present-add-overlays)
+  (org-present-narrow)
   (run-hooks 'org-present-mode-hook))
 
 (defun org-present-quit ()
