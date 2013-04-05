@@ -182,3 +182,6 @@
   (widen)
   (run-hooks 'org-present-mode-quit-hook)
   (setq org-present-mode nil))
+
+(provide 'org-present)
+;;; org-present.el ends here
