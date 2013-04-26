@@ -1,6 +1,10 @@
-;; org-present.el -- Minimalist presentation minor-mode for Emacs org-mode.
+;;; org-present.el --- Minimalist presentation minor-mode for Emacs org-mode.
 ;; 
 ;; Copyright (C) 2012 by Ric Lister
+;;
+;; Author: Ric Lister
+;; Package-Requires: ((org "7"))
+;; URL: https://github.com/rlister/org-present
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -18,6 +22,11 @@
 ;; along with GNU Emacs; if not, write to the Free Software
 ;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ;; 02111-1307, USA.
+;;
+;;; Commentary:
+;;
+;; This is meant to be an extremely minimalist presentation tool for
+;; Emacs org-mode.
 ;;
 ;; Usage:
 ;;
