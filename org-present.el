@@ -68,6 +68,8 @@
 
 ;; how much to scale up font size
 (defvar org-present-text-scale 5)
+(defvar org-present-cursor-cache (or cursor-type nil)
+  "Holds the user set value of cursor for `org-present-read-only'")
 (defvar org-present-overlays-list nil)
 
 (define-minor-mode org-present-mode
@@ -164,14 +166,15 @@
   "Make buffer read-only."
   (interactive)
   (setq buffer-read-only t)
-  (setq cursor-type nil)
+  (setq org-present-cursor-cache cursor-type
+        cursor-type nil)
   (define-key org-present-mode-keymap (kbd "SPC") 'org-present-next))
 
 (defun org-present-read-write ()
   "Make buffer read-only."
   (interactive)
   (setq buffer-read-only nil)
-  (setq cursor-type t)
+  (setq cursor-type org-present-cursor-cache)
   (define-key org-present-mode-keymap (kbd "SPC") 'self-insert-command))
 
 ;;;###autoload
