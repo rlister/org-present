@@ -1,5 +1,5 @@
 ;;; org-present.el --- Minimalist presentation minor-mode for Emacs org-mode.
-;; 
+;;
 ;; Copyright (C) 2012 by Ric Lister
 ;;
 ;; Author: Ric Lister
@@ -39,7 +39,7 @@
 ;;             (lambda ()
 ;;               (org-present-big)
 ;;               (org-display-inline-images)))
-;;  
+;;
 ;;   (add-hook 'org-present-mode-quit-hook
 ;;             (lambda ()
 ;;               (org-present-small)
