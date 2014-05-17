@@ -192,6 +192,9 @@
   (org-present-small)
   (org-present-rm-overlays)
   (widen)
+  ;; Exit from read-only mode before exiting the minor mode
+  (when buffer-read-only
+    (org-present-read-write))
   (run-hooks 'org-present-mode-quit-hook)
   (setq org-present-mode nil))
 
