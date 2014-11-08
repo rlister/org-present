@@ -37,11 +37,11 @@ M-x org-present
 ```
 
 Keys are:
-    - left/right for movement
-    - C-c C-= for large txt
-    - C-c C-- for small text
-    - C-c C-q for quit (which will return you back to vanilla org-mode)
-    - C-c < and C-c > to jump to first/last slide
+- left/right for movement
+- C-c C-= for large txt
+- C-c C-- for small text
+- C-c C-q for quit (which will return you back to vanilla org-mode)
+- C-c < and C-c > to jump to first/last slide
 
 ## Beautification
 
