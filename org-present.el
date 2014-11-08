@@ -85,7 +85,7 @@
   (unless (org-at-heading-p) (outline-previous-heading))
   (let ((level (org-current-level)))
     (when (and level (> level 1))
-      (outline-up-heading (- level 1)))))
+      (outline-up-heading (- level 1) t))))
 
 (defun org-present-next ()
   "Jump to next top-level heading."
