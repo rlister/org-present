@@ -65,6 +65,8 @@
 (define-key org-present-mode-keymap (kbd "C-c C-q") 'org-present-quit)
 (define-key org-present-mode-keymap (kbd "C-c C-r") 'org-present-read-only)
 (define-key org-present-mode-keymap (kbd "C-c C-w") 'org-present-read-write)
+(define-key org-present-mode-keymap (kbd "C-c <")   'org-present-beginning)
+(define-key org-present-mode-keymap (kbd "C-c >")   'org-present-end)
 
 ;; how much to scale up font size
 (defvar org-present-text-scale 5)
@@ -121,6 +123,21 @@
     (outline-next-heading)
     (narrow-to-region (point-min) (point))
     (goto-char (point-min))))
+
+(defun org-present-beginning ()
+  "Jump to first slide of presentation."
+  (interactive)
+  (widen)
+  (beginning-of-buffer)
+  (org-present-narrow))
+
+(defun org-present-end ()
+  "Jump to last slide of presentation."
+  (interactive)
+  (widen)
+  (end-of-buffer)
+  (org-present-top)
+  (org-present-narrow))
 
 (defun org-present-big ()
   "Make font size larger."
