@@ -53,6 +53,6 @@ If you're on a Mac with an older emacs you might also want to look at the
 [fullscreen patch](http://cloud.github.com/downloads/typester/emacs/feature-fullscreen.patch).
 `toggle-frame-fullscreen` comes with emacs 24.
 
-== Copyright
+## Copyright
 
-Copyright (c) 2012 Richard Lister.
+Copyright © 2014 Richard Lister.
