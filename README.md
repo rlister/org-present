@@ -49,8 +49,9 @@ This works well with
 [hide-mode-line](http://webonastick.com/emacs-lisp/hide-mode-line.el),
 which hides the mode-line when only one frame and buffer are open.
 
-If you're on a Mac you might also want to look at the
+If you're on a Mac with an older emacs you might also want to look at the
 [fullscreen patch](http://cloud.github.com/downloads/typester/emacs/feature-fullscreen.patch).
+`toggle-frame-fullscreen` comes with emacs 24.
 
 == Copyright
 
