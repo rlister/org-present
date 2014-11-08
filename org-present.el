@@ -91,10 +91,13 @@
   "Jump to next top-level heading."
   (interactive)
   (widen)
-  (if (org-current-level)
+  (if (org-current-level) ;inside any heading
       (progn
         (org-present-top)
-        (org-get-next-sibling))
+        (or
+         (org-get-next-sibling) ;next top-level heading
+         (org-present-top)))    ;if that was last, go back to top before narrow
+    ;; else handle title page before first heading
     (outline-next-heading))
   (org-present-narrow))
 
