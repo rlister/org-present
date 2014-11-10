@@ -197,6 +197,16 @@
   (setq cursor-type org-present-cursor-cache)
   (define-key org-present-mode-keymap (kbd "SPC") 'self-insert-command))
 
+(defun org-present-hide-cursor ()
+  "Hide the cursor for current window."
+  (interactive)
+  (internal-show-cursor (selected-window) nil))
+
+(defun org-present-show-cursor ()
+  "Show the cursor for current window."
+  (interactive)
+  (internal-show-cursor (selected-window) t))
+
 ;;;###autoload
 (defun org-present ()
   "init."
