@@ -3,7 +3,7 @@
 ;; Copyright (C) 2012 by Ric Lister
 ;;
 ;; Author: Ric Lister
-;; Package-Requires: ((org "7"))
+;; Package-Requires: ((org "7")(elnode "0.9"))
 ;; URL: https://github.com/rlister/org-present
 ;;
 ;; This file is not part of GNU Emacs.
@@ -55,6 +55,8 @@
 ;; If you're on a Mac you might also want to look at the fullscreen patch here:
 ;; http://cloud.github.com/downloads/typester/emacs/feature-fullscreen.patch
 
+(require 'elnode)
+
 (defvar org-present-mode-keymap (make-keymap) "org-present-mode keymap.")
 
 ;; left and right page keys
@@ -73,6 +75,31 @@
 (defvar org-present-cursor-cache (or cursor-type nil)
   "Holds the user set value of cursor for `org-present-read-only'")
 (defvar org-present-overlays-list nil)
+
+;; the HTML displayed in the remote control web page
+(defvar org-present-html
+  "<!doctype html>
+       <style type=\"text/css\">
+         a {
+           font-size: 8em;
+           margin-right: 1em;
+         }
+       </style>
+       <html>
+         <body>
+           <a href=\"/prev\">Prev</a>
+           <a href=\"/next\">Next</a>
+         </body>
+       </html>")
+
+;; which remote control routes should be hooked up to which handlers
+(defvar org-present-routes
+  '(("^.*//prev$" . org-present-prev-handler)
+    ("^.*//next$" . org-present-next-handler)
+    ("^.*//$" . org-present-default-handler)))
+
+;; the TCP/IP port on which to listen
+(defvar org-present-port 8009)
 
 (define-minor-mode org-present-mode
   "Minimalist presentation minor mode for org-mode."
@@ -211,6 +238,40 @@
   "Show the cursor for current window."
   (interactive)
   (internal-show-cursor (selected-window) t))
+
+(defun org-present-prev-handler (httpcon)
+  "Call org-present-prev when someone GETs /prev, and return the remote control page."
+  (with-current-buffer org-present-remote-buffer (org-present-prev))
+  (elnode-http-start httpcon 200 '("Content-type" . "text/html"))
+  (elnode-http-return httpcon org-present-html))
+
+(defun org-present-next-handler (httpcon)
+  "Call org-present-next when someone GETs /prev, and return the remote control page."
+  (with-current-buffer org-present-remote-buffer (org-present-next))
+  (elnode-http-start httpcon 200 '("Content-type" . "text/html"))
+  (elnode-http-return httpcon org-present-html))
+
+(defun org-present-default-handler (httpcon)
+  "Return the remote control page."
+  (elnode-http-start httpcon 200 '("Content-type" . "text/html"))
+  (elnode-http-return httpcon org-present-html))
+
+(defun org-present-root-handler (httpcon)
+  (elnode-hostpath-dispatcher httpcon org-present-routes))
+
+(defun org-present-remote-on (host)
+  "Turns the org-present remote control on."
+  (interactive "sStart remote control for this buffer on host: ")
+  (setq elnode-error-log-to-messages nil)
+  (elnode-stop org-present-port)
+  (setq org-present-remote-buffer (current-buffer))
+  (elnode-start 'org-present-root-handler :port org-present-port :host host))
+
+(defun org-present-remote-off ()
+  "Turns the org-present remote control off."
+  (interactive)
+  (elnode-stop org-present-port)
+  (setq org-present-remote-buffer nil))
 
 ;;;###autoload
 (defun org-present ()
