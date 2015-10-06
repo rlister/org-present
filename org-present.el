@@ -260,7 +260,7 @@
   (elnode-hostpath-dispatcher httpcon org-present-routes))
 
 (defun org-present-remote-on (host)
-  "Turns the org-present remote control on."
+  "Turn the org-present remote control on."
   (interactive "sStart remote control for this buffer on host: ")
   (setq elnode-error-log-to-messages nil)
   (elnode-stop org-present-port)
@@ -268,7 +268,7 @@
   (elnode-start 'org-present-root-handler :port org-present-port :host host))
 
 (defun org-present-remote-off ()
-  "Turns the org-present remote control off."
+  "Turn the org-present remote control off."
   (interactive)
   (elnode-stop org-present-port)
   (setq org-present-remote-buffer nil))
