@@ -142,7 +142,8 @@
   (unless (org-at-heading-p) (outline-previous-heading))
   (let ((level (org-current-level)))
     (when (and level (> level 1))
-      (outline-up-heading (- level 1) t))))
+      (outline-up-heading (- level 1) t)))
+  (org-present-remote-set-title))
 
 (defun org-present-next ()
   "Jump to next top-level heading."
@@ -300,7 +301,8 @@
   "Set the title to display in the remote control."
   (let ((title-text (thing-at-point 'line)))
     (setq org-present-remote-title
-          (replace-regexp-in-string "^[ \*]" "" title-text))))
+          (org-present-trim-string
+           (replace-regexp-in-string "^[ \*]" "" title-text)))))
 
 (defun org-present-remote-on (host)
   "Turn the org-present remote control on."
@@ -315,6 +317,13 @@
   (interactive)
   (elnode-stop org-present-port)
   (setq org-present-remote-buffer nil))
+
+;; courtesy Xah Lee ( http://ergoemacs.org/emacs/modernization_elisp_lib_problem.html )
+(defun org-present-trim-string (string)
+  "Remove whitespace (space, tab, emacs newline (LF, ASCII 10)) in beginning and ending of STRING."
+  (replace-regexp-in-string
+   "\\`[ \t\n]*" ""
+   (replace-regexp-in-string "[ \t\n]*\\'" "" string)))
 
 ;;;###autoload
 (defun org-present ()
