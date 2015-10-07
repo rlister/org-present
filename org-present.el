@@ -81,29 +81,42 @@
   "<!doctype html>
    <html>
      <head>
-       <meta charset=\"utf-8\" />
+       <meta charset='utf-8' />
        <title>%s</title> <!-- presentation name -->
-       <style type=\"text/css\">
+       <style type='text/css'>
          h1 {
-         font-size: 9vmin;
+           font-size: 9vmin;
          }
          h2 {
-         font-size: 7vmin;
+           font-size: 7vmin;
          }
          body {
-         font-size: 5vmin;
+           font-size: 5vmin;
+         }
+         .next {
+           float: right;
+         }
+         .prev {
+           float: left;
+         }
+         .logo {
+           text-align: center;
+         }
+         .next, .prev {
+           font-size: 12vmin;
+         }
+         img.icon {
+           height: 160px;
          }
        </style>
      </head>
      <body>
-       <a href=\"/prev\">Prev</a> | <a href=\"/next\">Next</a>
+       <div class='next'><a href='/next'>Next</a></div>
+       <div class='prev'><a href='/prev'>Prev</a></div>
+       <div class='logo'><a href='http://orgmode.org/'><img class='icon' src='http://orgmode.org/img/org-mode-unicorn-logo.png' alt='org-mode' /></a></div>
        <hr>
        <h1>%s</h1> <!-- presentation name -->
        <h2>%s</h2> <!-- slide title -->
-       <hr>
-       <p>
-         <a href=\"http://orgmode.org/\"><img src=\"http://orgmode.org/img/org-mode-unicorn-logo.png\" alt=\"org-mode\" /></a>
-       </p>
      </body>
    </html>")
 
