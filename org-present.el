@@ -77,20 +77,35 @@
 (defvar org-present-overlays-list nil)
 
 ;; the HTML displayed in the remote control web page
-(defvar org-present-html
+(defvar org-present-html-template
   "<!doctype html>
+   <html>
+     <head>
+       <meta charset=\"utf-8\" />
+       <title>%s</title> <!-- presentation name -->
        <style type=\"text/css\">
-         a {
-           font-size: 8em;
-           margin-right: 1em;
+         h1 {
+         font-size: 9vmin;
+         }
+         h2 {
+         font-size: 7vmin;
+         }
+         body {
+         font-size: 5vmin;
          }
        </style>
-       <html>
-         <body>
-           <a href=\"/prev\">Prev</a>
-           <a href=\"/next\">Next</a>
-         </body>
-       </html>")
+     </head>
+     <body>
+       <a href=\"/prev\">Prev</a> | <a href=\"/next\">Next</a>
+       <hr>
+       <h1>%s</h1> <!-- presentation name -->
+       <h2>%s</h2> <!-- slide title -->
+       <hr>
+       <p>
+         <a href=\"http://orgmode.org/\"><img src=\"http://orgmode.org/img/org-mode-unicorn-logo.png\" alt=\"org-mode\" /></a>
+       </p>
+     </body>
+   </html>")
 
 ;; which remote control routes should be hooked up to which handlers
 (defvar org-present-routes
@@ -128,7 +143,8 @@
          (org-present-top)))    ;if that was last, go back to top before narrow
     ;; else handle title page before first heading
     (outline-next-heading))
-  (org-present-narrow))
+  (org-present-narrow)
+  (org-present-remote-set-title))
 
 (defun org-present-prev ()
   "Jump to previous top-level heading."
@@ -138,7 +154,8 @@
         (widen)
         (org-present-top)
         (org-get-last-sibling)))
-  (org-present-narrow))
+  (org-present-narrow)
+  (org-present-remote-set-title))
 
 (defun org-present-narrow ()
   "Show just current page; in a heading we narrow, else show title page (before first heading)."
@@ -239,25 +256,38 @@
   (interactive)
   (internal-show-cursor (selected-window) t))
 
+(defun org-present-html ()
+  "Build the page HTML from the template and selected variables."
+  (format org-present-html-template
+          org-present-remote-buffer
+          org-present-remote-buffer
+          org-present-remote-title))
+
 (defun org-present-prev-handler (httpcon)
   "Call org-present-prev when someone GETs /prev, and return the remote control page."
   (with-current-buffer org-present-remote-buffer (org-present-prev))
   (elnode-http-start httpcon 200 '("Content-type" . "text/html"))
-  (elnode-http-return httpcon org-present-html))
+  (elnode-http-return httpcon (org-present-html)))
 
 (defun org-present-next-handler (httpcon)
   "Call org-present-next when someone GETs /prev, and return the remote control page."
   (with-current-buffer org-present-remote-buffer (org-present-next))
   (elnode-http-start httpcon 200 '("Content-type" . "text/html"))
-  (elnode-http-return httpcon org-present-html))
+  (elnode-http-return httpcon (org-present-html)))
 
 (defun org-present-default-handler (httpcon)
   "Return the remote control page."
   (elnode-http-start httpcon 200 '("Content-type" . "text/html"))
-  (elnode-http-return httpcon org-present-html))
+  (elnode-http-return httpcon (org-present-html)))
 
 (defun org-present-root-handler (httpcon)
   (elnode-hostpath-dispatcher httpcon org-present-routes))
+
+(defun org-present-remote-set-title ()
+  "Set the title to display in the remote control."
+  (let ((title-text (thing-at-point 'line)))
+    (setq org-present-remote-title
+          (replace-regexp-in-string "^[ \*]" "" title-text))))
 
 (defun org-present-remote-on (host)
   "Turn the org-present remote control on."
@@ -280,7 +310,8 @@
   (setq org-present-mode t)
   (org-present-add-overlays)
   (org-present-narrow)
-  (run-hooks 'org-present-mode-hook))
+  (run-hooks 'org-present-mode-hook)
+  (org-present-remote-set-title))
 
 (defun org-present-quit ()
   "Quit the minor-mode."
