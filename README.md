@@ -64,6 +64,34 @@ If you're on a Mac with an older emacs you might also want to look at the
 [fullscreen patch](http://cloud.github.com/downloads/typester/emacs/feature-fullscreen.patch).
 `toggle-frame-fullscreen` comes with emacs 24.
 
+## Remote Control
+
+org-present includes a simple, mobile-friendly web remote control for
+moving between slides.  To start it, first enter presentation mode
+with `M-x org-present`, then do `M-x org-present-remote-on`.
+
+You will need to enter the host to which to make the interface
+available on.  For local testing this can be `localhost`.  For actual
+use you will need to supply your machine's IP address.
+
+Then use a browser to open the remote control by browsing to port 8009
+on the host you supplied, e.g.:
+
+[http://localhost:8009/](http://localhost:8009)
+
+### How do I determine my IP address?
+On many *NIX systems you can do this with ifconfig.  For example, to
+determine the IP address of your WiFi adaptor on Linux Mint:
+```
+$ ifconfig wlan0
+wlan0     Link encap:Ethernet  HWaddr f4:06:69:69:fd:4d
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+```
+
 ## Copyright
 
 Copyright © 2014 Richard Lister.
