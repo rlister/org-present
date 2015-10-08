@@ -3,7 +3,7 @@
 ;; Copyright (C) 2012 by Ric Lister
 ;;
 ;; Author: Ric Lister
-;; Package-Requires: ((org "7"))
+;; Package-Requires: ((org "7")(elnode "0.9"))
 ;; URL: https://github.com/rlister/org-present
 ;;
 ;; This file is not part of GNU Emacs.
@@ -55,6 +55,8 @@
 ;; If you're on a Mac you might also want to look at the fullscreen patch here:
 ;; http://cloud.github.com/downloads/typester/emacs/feature-fullscreen.patch
 
+(require 'elnode)
+
 (defvar org-present-mode-keymap (make-keymap) "org-present-mode keymap.")
 
 ;; left and right page keys
@@ -74,6 +76,59 @@
   "Holds the user set value of cursor for `org-present-read-only'")
 (defvar org-present-overlays-list nil)
 
+;; the HTML displayed in the remote control web page
+(defvar org-present-html-template
+  "<!doctype html>
+   <html>
+     <head>
+       <meta charset='utf-8' />
+       <title>%s</title> <!-- presentation name -->
+       <style type='text/css'>
+         h1 {
+           font-size: 9vmin;
+         }
+         h2 {
+           font-size: 7vmin;
+         }
+         body {
+           font-size: 5vmin;
+         }
+         .next {
+           float: right;
+         }
+         .prev {
+           float: left;
+         }
+         .logo {
+           text-align: center;
+         }
+         .next, .prev {
+           font-size: 12vmin;
+         }
+         img.icon {
+           height: 160px;
+         }
+       </style>
+     </head>
+     <body>
+       <div class='next'><a href='/next'>Next</a></div>
+       <div class='prev'><a href='/prev'>Prev</a></div>
+       <div class='logo'><a href='http://orgmode.org/'><img class='icon' src='http://orgmode.org/img/org-mode-unicorn-logo.png' alt='org-mode' /></a></div>
+       <hr>
+       <h1>%s</h1> <!-- presentation name -->
+       <h2>%s</h2> <!-- slide title -->
+     </body>
+   </html>")
+
+;; which remote control routes should be hooked up to which handlers
+(defvar org-present-routes
+  '(("^.*//prev$" . org-present-prev-handler)
+    ("^.*//next$" . org-present-next-handler)
+    ("^.*//$" . org-present-default-handler)))
+
+;; the TCP/IP port on which to listen
+(defvar org-present-port 8009)
+
 (define-minor-mode org-present-mode
   "Minimalist presentation minor mode for org-mode."
   :init-value nil
@@ -87,7 +142,8 @@
   (unless (org-at-heading-p) (outline-previous-heading))
   (let ((level (org-current-level)))
     (when (and level (> level 1))
-      (outline-up-heading (- level 1) t))))
+      (outline-up-heading (- level 1) t)))
+  (org-present-remote-set-title))
 
 (defun org-present-next ()
   "Jump to next top-level heading."
@@ -101,7 +157,8 @@
          (org-present-top)))    ;if that was last, go back to top before narrow
     ;; else handle title page before first heading
     (outline-next-heading))
-  (org-present-narrow))
+  (org-present-narrow)
+  (org-present-remote-set-title))
 
 (defun org-present-prev ()
   "Jump to previous top-level heading."
@@ -111,7 +168,8 @@
         (widen)
         (org-present-top)
         (org-get-last-sibling)))
-  (org-present-narrow))
+  (org-present-narrow)
+  (org-present-remote-set-title))
 
 (defun org-present-narrow ()
   "Show just current page; in a heading we narrow, else show title page (before first heading)."
@@ -212,6 +270,72 @@
   (interactive)
   (internal-show-cursor (selected-window) t))
 
+(defun org-present-html ()
+  "Build the page HTML from the template and selected variables."
+  (format org-present-html-template
+          (org-present-html-escape (buffer-name org-present-remote-buffer))
+          (org-present-html-escape (buffer-name org-present-remote-buffer))
+          (org-present-html-escape org-present-remote-title)))
+
+(defun org-present-prev-handler (httpcon)
+  "Call org-present-prev when someone GETs /prev, and return the remote control page."
+  (with-current-buffer org-present-remote-buffer (org-present-prev))
+  (elnode-http-start httpcon 200 '("Content-type" . "text/html"))
+  (elnode-http-return httpcon (org-present-html)))
+
+(defun org-present-next-handler (httpcon)
+  "Call org-present-next when someone GETs /prev, and return the remote control page."
+  (with-current-buffer org-present-remote-buffer (org-present-next))
+  (elnode-http-start httpcon 200 '("Content-type" . "text/html"))
+  (elnode-http-return httpcon (org-present-html)))
+
+(defun org-present-default-handler (httpcon)
+  "Return the remote control page."
+  (elnode-http-start httpcon 200 '("Content-type" . "text/html"))
+  (elnode-http-return httpcon (org-present-html)))
+
+(defun org-present-root-handler (httpcon)
+  (elnode-hostpath-dispatcher httpcon org-present-routes))
+
+(defun org-present-html-escape (str)
+  "Escape significant HTML characters in 'str'.
+Shamelessly lifted from https://github.com/nicferrier/elnode/blob/master/examples/org-present.el"
+  (replace-regexp-in-string
+   "<\\|\\&"
+   (lambda (src)
+     (cond
+      ((equal src "&") "&amp;")
+      ((equal src "<")  "&lt;")))
+   str))
+
+(defun org-present-remote-set-title ()
+  "Set the title to display in the remote control."
+  (let ((title-text (thing-at-point 'line)))
+    (setq org-present-remote-title
+          (org-present-trim-string
+           (replace-regexp-in-string "^[ \*]" "" title-text)))))
+
+(defun org-present-remote-on (host)
+  "Turn the org-present remote control on."
+  (interactive "sStart remote control for this buffer on host: ")
+  (setq elnode-error-log-to-messages nil)
+  (elnode-stop org-present-port)
+  (setq org-present-remote-buffer (current-buffer))
+  (elnode-start 'org-present-root-handler :port org-present-port :host host))
+
+(defun org-present-remote-off ()
+  "Turn the org-present remote control off."
+  (interactive)
+  (elnode-stop org-present-port)
+  (setq org-present-remote-buffer nil))
+
+;; courtesy Xah Lee ( http://ergoemacs.org/emacs/modernization_elisp_lib_problem.html )
+(defun org-present-trim-string (string)
+  "Remove whitespace (space, tab, emacs newline (LF, ASCII 10)) in beginning and ending of STRING."
+  (replace-regexp-in-string
+   "\\`[ \t\n]*" ""
+   (replace-regexp-in-string "[ \t\n]*\\'" "" string)))
+
 ;;;###autoload
 (defun org-present ()
   "init."
@@ -219,7 +343,8 @@
   (setq org-present-mode t)
   (org-present-add-overlays)
   (org-present-narrow)
-  (run-hooks 'org-present-mode-hook))
+  (run-hooks 'org-present-mode-hook)
+  (org-present-remote-set-title))
 
 (defun org-present-quit ()
   "Quit the minor-mode."
