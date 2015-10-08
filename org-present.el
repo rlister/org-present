@@ -273,9 +273,9 @@
 (defun org-present-html ()
   "Build the page HTML from the template and selected variables."
   (format org-present-html-template
-          org-present-remote-buffer
-          org-present-remote-buffer
-          org-present-remote-title))
+          (org-present-html-escape (buffer-name org-present-remote-buffer))
+          (org-present-html-escape (buffer-name org-present-remote-buffer))
+          (org-present-html-escape org-present-remote-title)))
 
 (defun org-present-prev-handler (httpcon)
   "Call org-present-prev when someone GETs /prev, and return the remote control page."
@@ -296,6 +296,17 @@
 
 (defun org-present-root-handler (httpcon)
   (elnode-hostpath-dispatcher httpcon org-present-routes))
+
+(defun org-present-html-escape (str)
+  "Escape significant HTML characters in 'str'.
+Shamelessly lifted from https://github.com/nicferrier/elnode/blob/master/examples/org-present.el"
+  (replace-regexp-in-string
+   "<\\|\\&"
+   (lambda (src)
+     (cond
+      ((equal src "&") "&amp;")
+      ((equal src "<")  "&lt;")))
+   str))
 
 (defun org-present-remote-set-title ()
   "Set the title to display in the remote control."
