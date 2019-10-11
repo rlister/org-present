@@ -175,7 +175,7 @@
     (goto-char (point-min))
     (while (re-search-forward "^[[:space:]]*\\(#\\+\\)\\([^[:space:]]+\\).*" nil t)
       (let ((end (if (org-present-show-option (match-string 2)) 2 0)))
-        (org-present-add-overlay (match-beginning 1) (match-end end))))
+        (org-present-add-overlay (- (match-beginning 1) 1) (match-end end))))
     ;; hide stars in headings
     (goto-char (point-min))
     (while (re-search-forward "^\\(*+\\)" nil t)
