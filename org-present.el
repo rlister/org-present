@@ -168,7 +168,11 @@
      string)))
 
 (defvar org-present-hide-stars-in-headings t
-  "Whether to hide the asterisk characters in headings while in presentation mode.")
+  "Whether to hide the asterisk characters in headings while in presentation
+mode. If you turn this off (by setting it to nil) make sure to set
+`org-hide-emphasis-markers' non-nil, since currently `org-present''s algorithm
+for hiding emphasis markers has a bad interaction with bullets. This combo also
+makes tabs work in presentation mode as in the rest of Org mode.")
 
 (defun org-present-add-overlays ()
   "Add overlays for this mode."
