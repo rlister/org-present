@@ -167,6 +167,9 @@
      (regexp-opt '("title:" "author:" "date:" "email:"))
      string)))
 
+(defvar org-present-hide-stars-in-headings t
+  "Whether to hide the asterisk characters in headings while in presentation mode.")
+
 (defun org-present-add-overlays ()
   "Add overlays for this mode."
   (add-to-invisibility-spec '(org-present))
@@ -177,9 +180,10 @@
       (let ((end (if (org-present-show-option (match-string 2)) 2 0)))
         (org-present-add-overlay (match-beginning 1) (match-end end))))
     ;; hide stars in headings
-    (goto-char (point-min))
-    (while (re-search-forward "^\\(*+\\)" nil t)
-      (org-present-add-overlay (match-beginning 1) (match-end 1)))
+    (if org-present-hide-stars-in-headings
+        (progn (goto-char (point-min))
+               (while (re-search-forward "^\\(*+\\)" nil t)
+                 (org-present-add-overlay (match-beginning 1) (match-end 1)))))
     ;; hide emphasis markers
     (goto-char (point-min))
     (while (re-search-forward org-emph-re nil t)
@@ -188,7 +192,7 @@
 
 (defun org-present-rm-overlays ()
   "Remove overlays for this mode."
-  (mapc 'delete-overlay org-present-overlays-list)
+  (mapc #'delete-overlay org-present-overlays-list)
   (remove-from-invisibility-spec '(org-present)))
 
 (defun org-present-read-only ()
@@ -197,7 +201,7 @@
   (setq buffer-read-only t)
   (setq org-present-cursor-cache cursor-type
         cursor-type nil)
-  (define-key org-present-mode-keymap (kbd "SPC") 'org-present-next))
+  (define-key org-present-mode-keymap (kbd "SPC") #'org-present-next))
 
 (defun org-present-read-write ()
   "Make buffer read-only."
