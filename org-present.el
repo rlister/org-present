@@ -180,16 +180,22 @@
     (goto-char (point-min))
     (while (re-search-forward "^\\(*+\\)" nil t)
       (org-present-add-overlay (match-beginning 1) (match-end 1)))
-    ;; hide emphasis markers
-    (goto-char (point-min))
-    (while (re-search-forward org-emph-re nil t)
-      (org-present-add-overlay (match-beginning 2) (1+ (match-beginning 2)))
-      (org-present-add-overlay (1- (match-end 2)) (match-end 2)))
-    ;; hide verbatim markers
-    (goto-char (point-min))
-    (while (re-search-forward org-verbatim-re nil t)
-      (org-present-add-overlay (match-beginning 2) (1+ (match-beginning 2)))
-      (org-present-add-overlay (1- (match-end 2)) (match-end 2)))))
+    ;; hide emphasis/verbatim markers if not already hidden by org
+    (if org-hide-emphasis-markers nil
+      ;; TODO https://github.com/rlister/org-present/issues/12
+      ;; It would be better to reuse org's own facility for this, if possible.
+      ;; However it is not obvious how to do this.
+      (progn
+        ;; hide emphasis markers
+        (goto-char (point-min))
+        (while (re-search-forward org-emph-re nil t)
+          (org-present-add-overlay (match-beginning 2) (1+ (match-beginning 2)))
+          (org-present-add-overlay (1- (match-end 2)) (match-end 2)))
+        ;; hide verbatim markers
+        (goto-char (point-min))
+        (while (re-search-forward org-verbatim-re nil t)
+          (org-present-add-overlay (match-beginning 2) (1+ (match-beginning 2)))
+          (org-present-add-overlay (1- (match-end 2)) (match-end 2)))))))
 
 (defun org-present-rm-overlays ()
   "Remove overlays for this mode."
