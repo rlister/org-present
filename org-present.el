@@ -233,8 +233,8 @@
   (interactive)
   (setq org-present-mode t)
   (org-present-add-overlays)
-  (org-present-narrow)
   (run-hooks 'org-present-mode-hook)
+  (org-present-narrow)
   (org-present-run-after-navigate-functions))
 
 (defun org-present-quit ()
