@@ -55,6 +55,7 @@ Keys are:
 - C-c < and C-c > to jump to first/last slide
 - C-c C-r for buffer read-only
 - C-c C-w for buffer read/write
+- C-c C-1 for one big page showing all slides
 
 ## Beautification
 

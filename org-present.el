@@ -67,12 +67,14 @@
 (define-key org-present-mode-keymap (kbd "C-c C-w") 'org-present-read-write)
 (define-key org-present-mode-keymap (kbd "C-c <")   'org-present-beginning)
 (define-key org-present-mode-keymap (kbd "C-c >")   'org-present-end)
+(define-key org-present-mode-keymap (kbd "C-c C-1") 'org-present-toggle-one-big-page)
 
 ;; how much to scale up font size
 (defvar org-present-text-scale 5)
 (defvar org-present-cursor-cache (or cursor-type nil)
   "Holds the user set value of cursor for `org-present-read-only'")
 (defvar org-present-overlays-list nil)
+(defvar org-present-one-big-page nil)
 
 (define-minor-mode org-present-mode
   "Minimalist presentation minor mode for org-mode."
@@ -236,6 +238,16 @@
   (org-present-narrow)
   (run-hooks 'org-present-mode-hook)
   (org-present-run-after-navigate-functions))
+
+(defun org-present-toggle-one-big-page ()
+  "Toggle showing all pages in a buffer."
+  (interactive)
+  (if org-present-one-big-page
+      (progn
+        (org-present-narrow)
+        (setq-local org-present-one-big-page nil))
+    (widen)
+    (setq-local org-present-one-big-page t)))
 
 (defun org-present-quit ()
   "Quit the minor-mode."
