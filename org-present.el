@@ -211,7 +211,7 @@
   (define-key org-present-mode-keymap (kbd "SPC") 'org-present-next))
 
 (defun org-present-read-write ()
-  "Make buffer read-only."
+  "Make buffer read/write."
   (interactive)
   (setq buffer-read-only nil)
   (setq cursor-type org-present-cursor-cache)
@@ -229,7 +229,7 @@
 
 ;;;###autoload
 (defun org-present ()
-  "init."
+  "Start org presentation."
   (interactive)
   (setq org-present-mode t)
   (org-present-add-overlays)
