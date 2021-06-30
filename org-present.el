@@ -206,25 +206,27 @@
   "Make buffer read-only."
   (interactive)
   (setq buffer-read-only t)
-  (setq org-present-cursor-cache cursor-type
-        cursor-type nil)
   (define-key org-present-mode-keymap (kbd "SPC") 'org-present-next))
 
 (defun org-present-read-write ()
   "Make buffer read-only."
   (interactive)
   (setq buffer-read-only nil)
-  (setq cursor-type org-present-cursor-cache)
   (define-key org-present-mode-keymap (kbd "SPC") 'self-insert-command))
 
 (defun org-present-hide-cursor ()
   "Hide the cursor for current window."
   (interactive)
+  (if cursor-type
+      (setq-local org-present-cursor-cache cursor-type
+            cursor-type nil))
   (internal-show-cursor (selected-window) nil))
 
 (defun org-present-show-cursor ()
   "Show the cursor for current window."
   (interactive)
+  (if org-present-cursor-cache
+      (setq-local cursor-type org-present-cursor-cache))
   (internal-show-cursor (selected-window) t))
 
 ;;;###autoload
