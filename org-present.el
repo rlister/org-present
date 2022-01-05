@@ -130,7 +130,7 @@
   "Jump to first slide of presentation."
   (interactive)
   (widen)
-  (beginning-of-buffer)
+  (goto-char (point-min))
   (org-present-narrow)
   (org-present-run-after-navigate-functions))
 
@@ -138,7 +138,7 @@
   "Jump to last slide of presentation."
   (interactive)
   (widen)
-  (end-of-buffer)
+  (goto-char (point-max))
   (org-present-top)
   (org-present-narrow)
   (org-present-run-after-navigate-functions))
