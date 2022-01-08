@@ -3,6 +3,7 @@
 ;; Copyright (C) 2012 by Ric Lister
 ;;
 ;; Author: Ric Lister
+;; Version: 0.1
 ;; Package-Requires: ((org "7"))
 ;; URL: https://github.com/rlister/org-present
 ;;
