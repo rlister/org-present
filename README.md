@@ -1,4 +1,5 @@
 # org-present-mode
+[![NonGNU ELPA](https://elpa.nongnu.org/nongnu/org-present.svg)](https://elpa.nongnu.org/nongnu/org-present.html)
 
 This is meant to be an extremely minimalist presentation tool for
 Emacs [org-mode](http://orgmode.org/).  Simply layout your
