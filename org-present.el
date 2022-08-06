@@ -250,6 +250,12 @@
   (run-hooks 'org-present-mode-quit-hook)
   (setq org-present-mode nil))
 
+(defvar org-present-startup-folded nil
+  "Like `org-startup-folded', but for presentation mode. Also analogous to
+introduction of slide items by effects in other presentation programs: i.e., if
+you do not want to show the whole slide at first, but to unfurl it slowly, set
+this to non-nil.")
+
 (defvar org-present-after-navigate-functions nil
   "Abnormal hook run after org-present navigates to a new heading.")
 
@@ -261,11 +267,14 @@
    (replace-regexp-in-string "[ \t\n]*\\'" "" string)))
 
 (defun org-present-run-after-navigate-functions ()
-  "Run org-present-after-navigate hook, passing the name of the presentation buffer and the current heading."
-  (let* ((title-text (thing-at-point 'line))
-         (safe-title-text (replace-regexp-in-string "^[ \*]" "" title-text))
-         (current-heading (org-present-trim-string safe-title-text)))
-    (run-hook-with-args 'org-present-after-navigate-functions (buffer-name) current-heading)))
+  "Fold slide if `org-present-startup-folded' is non-nil.
+Run org-present-after-navigate hook, passing the name of the presentation buffer and the current heading."
+  (progn
+    (if org-present-startup-folded (org-cycle))
+    (let* ((title-text (thing-at-point 'line))
+           (safe-title-text (replace-regexp-in-string "^[ \*]" "" title-text))
+           (current-heading (org-present-trim-string safe-title-text)))
+      (run-hook-with-args 'org-present-after-navigate-functions (buffer-name) current-heading))))
 
 (provide 'org-present)
 ;;; org-present.el ends here
