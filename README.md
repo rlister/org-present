@@ -67,6 +67,10 @@ If you're on a Mac with an older emacs you might also want to look at the
 [fullscreen patch](http://cloud.github.com/downloads/typester/emacs/feature-fullscreen.patch).
 `toggle-frame-fullscreen` comes with emacs 24.
 
+## Customization
+
+David Wilson from System Crafters has made an excellent [blog post](https://systemcrafters.net/emacs-tips/presentations-with-org-present/) and [video](https://www.youtube.com/watch?v=SCPoF1PTZpI) about customization of `org-present`.
+
 ## Copyright
 
 Copyright © 2014 Richard Lister.
