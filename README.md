@@ -54,8 +54,9 @@ Keys are:
 - C-c C-- for small text
 - C-c C-q for quit (which will return you back to vanilla org-mode)
 - C-c < and C-c > to jump to first/last slide
-- C-c C-r set slides read only
-- C-c C-w allow writing on slides
+- C-c C-r for buffer read-only
+- C-c C-w for buffer read/write
+- C-c C-1 for one big page showing all slides
 
 ## Beautification
 
