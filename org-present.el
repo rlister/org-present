@@ -184,6 +184,10 @@ makes tabs work in presentation mode as in the rest of Org mode.")
     (while (re-search-forward "^[[:space:]]*\\(#\\+\\)\\([^[:space:]]+\\).*" nil t)
       (let ((end (if (org-present-show-option (match-string 2)) 2 0)))
         (org-present-add-overlay (match-beginning 1) (match-end end))))
+    ;; hide :PROPERTIES: :END: block
+    (progn (goto-char (point-min))
+           (while (re-search-forward "^[[:space:]]*\\(:PROPERTIES:\\)\\(?:.\\|\n\\)*?\\(:END:\\).*$" nil t)
+             (org-present-add-overlay (match-beginning 1) (match-end 2))))
     ;; hide stars in headings
     (if org-present-hide-stars-in-headings
         (progn (goto-char (point-min))
