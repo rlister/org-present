@@ -215,8 +215,6 @@ makes tabs work in presentation mode as in the rest of Org mode.")
   "Make buffer read-only."
   (interactive)
   (setq buffer-read-only t)
-  (setq org-present-cursor-cache cursor-type
-        cursor-type nil)
   (define-key org-present-mode-keymap (kbd "SPC") #'org-present-next))
 
 (defun org-present-read-write ()
