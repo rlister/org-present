@@ -75,6 +75,10 @@
 (defvar org-present-overlays-list nil)
 (defvar org-present-one-big-page nil)
 
+(defvar org-present--emphasis-markers-changed nil
+  "Non-nil if org-present set `org-hide-emphasis-markers' buffer-locally.
+When non-nil, `org-present-rm-overlays' will restore it to nil.")
+
 (define-minor-mode org-present-mode
   "Minimalist presentation minor mode for org-mode."
   :init-value nil
@@ -170,10 +174,7 @@
 
 (defvar org-present-hide-stars-in-headings t
   "Whether to hide the asterisk characters in headings while in presentation
-mode. If you turn this off (by setting it to nil) make sure to set
-`org-hide-emphasis-markers' non-nil, since currently `org-present''s algorithm
-for hiding emphasis markers has a bad interaction with bullets. This combo also
-makes tabs work in presentation mode as in the rest of Org mode.")
+mode.")
 
 (defun org-present-add-overlays ()
   "Add overlays for this mode."
@@ -189,27 +190,25 @@ makes tabs work in presentation mode as in the rest of Org mode.")
         (progn (goto-char (point-min))
                (while (re-search-forward "^\\(*+\\)" nil t)
                  (org-present-add-overlay (match-beginning 1) (match-end 1)))))
-    ;; hide emphasis/verbatim markers if not already hidden by org
-    (if org-hide-emphasis-markers nil
-      ;; TODO https://github.com/rlister/org-present/issues/12
-      ;; It would be better to reuse org's own facility for this, if possible.
-      ;; However it is not obvious how to do this.
-      (progn
-        ;; hide emphasis markers
-        (goto-char (point-min))
-        (while (re-search-forward org-emph-re nil t)
-          (org-present-add-overlay (match-beginning 2) (1+ (match-beginning 2)))
-          (org-present-add-overlay (1- (match-end 2)) (match-end 2)))
-        ;; hide verbatim markers
-        (goto-char (point-min))
-        (while (re-search-forward org-verbatim-re nil t)
-          (org-present-add-overlay (match-beginning 2) (1+ (match-beginning 2)))
-          (org-present-add-overlay (1- (match-end 2)) (match-end 2)))))))
+    ;; Use org's built-in emphasis hiding instead of manual overlays.
+    ;; Manual overlays using org-emph-re incorrectly match characters
+    ;; in table separators (see github issue #12).
+    (unless org-hide-emphasis-markers
+      (setq-local org-present--emphasis-markers-changed t)
+      (setq-local org-hide-emphasis-markers t)
+      (font-lock-flush)
+      (font-lock-ensure))))
 
 (defun org-present-rm-overlays ()
   "Remove overlays for this mode."
   (mapc #'delete-overlay org-present-overlays-list)
-  (remove-from-invisibility-spec '(org-present)))
+  (remove-from-invisibility-spec '(org-present))
+  ;; Restore org-hide-emphasis-markers if we changed it
+  (when org-present--emphasis-markers-changed
+    (setq-local org-hide-emphasis-markers nil)
+    (setq-local org-present--emphasis-markers-changed nil)
+    (font-lock-flush)
+    (font-lock-ensure)))
 
 (defun org-present-read-only ()
   "Make buffer read-only."
