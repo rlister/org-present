@@ -204,7 +204,12 @@ makes tabs work in presentation mode as in the rest of Org mode.")
         (goto-char (point-min))
         (while (re-search-forward org-verbatim-re nil t)
           (org-present-add-overlay (match-beginning 2) (1+ (match-beginning 2)))
-          (org-present-add-overlay (1- (match-end 2)) (match-end 2)))))))
+          (org-present-add-overlay (1- (match-end 2)) (match-end 2)))))
+    ;; Hide local variables
+    (when (re-search-forward "^# Local variables:")
+      (let ((lvar-begin (match-beginning 0)))
+        (when (re-search-forward "^# End:")
+          (org-present-add-overlay lvar-begin (match-end 0)))))))
 
 (defun org-present-rm-overlays ()
   "Remove overlays for this mode."
